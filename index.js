@@ -27,12 +27,15 @@ const gameBoard = (() => {
         _boardSize = size;
     };
 
+    const getBoardSize = () => _boardSize;
+
     const getBoard = () => _board;
 
     return {
         reset,
         place,
         setBoardSize,
+        getBoardSize,
         getBoard,
     };
 })();
@@ -67,16 +70,18 @@ const gameControl = (() => {
 
     const addPlayer = (name, char) => {
         for (let i = 0; i < _players.length; i++) {
-            if (_players[i].char === char) {
+            if (_players[i].getChar() === char) {
                 alert("This character is already in use. Please pick another.");
                 return;
             }
         }
         const newPlayer = Player(name, char);
         _players.push(newPlayer);
+        reset();
     };
 
     const reset = () => {
+        _resetGameCells();
         gameBoard.setBoardSize(3);
         gameBoard.reset();
         _randomPlayer();
@@ -87,11 +92,15 @@ const gameControl = (() => {
     };
 
     const place = (x, y) => {
-        if (gameBoard.place(x, y, _players[_turn].char)) {
-            _checkWin(x, y, _players[_turn].char);
-            _turn = (_turn + 1) % _players.length;
-        } else {
-            alert(`There is already a '${gameBoard.getBoard()[y][x]}' here.`);
+        if (_players.length >= 2) {
+            if (gameBoard.place(x, y, _players[_turn].getChar())) {
+                _checkWin(x, y, _players[_turn].getChar());
+                _turn = (_turn + 1) % _players.length;
+            } else {
+                alert(
+                    `There is already a '${gameBoard.getBoard()[y][x]}' here.`
+                );
+            }
         }
     };
 
@@ -136,7 +145,47 @@ const gameControl = (() => {
     };
 
     const _announceWin = () => {
-        alert(`Player ${_players[_turn].name} has won the game!`);
+        alert(`Player ${_players[_turn].getName()} has won the game!`);
+    };
+
+    const _resetGameCells = () => {
+        const gameCells = document.querySelectorAll(".game-cell");
+        gameCells.forEach((cell) => cell.parentNode.removeChild(cell));
+
+        const boardSize = gameBoard.getBoardSize();
+        const gameContainer = document.querySelector(".game-container");
+
+        for (let i = 0; i < boardSize ** 2; i++) {
+            const newCell = _newCell();
+            gameContainer.appendChild(newCell);
+        }
+
+        const ctWidth = 500;
+        gameContainer.style.width = `${ctWidth}px`;
+        const ctHeight = 500;
+        gameContainer.style.height = `${ctHeight}px`;
+        const ctPadding = 20;
+        gameContainer.style.padding = `${ctPadding}px`;
+        const ctGap = Math.floor(20 / boardSize);
+        gameContainer.style.gap = `${ctGap}px`;
+
+        const cellWidth = Math.floor(
+            (ctWidth - ctPadding * 2 - ctGap * (boardSize - 1)) / boardSize
+        );
+        const cellHeight = Math.floor(
+            (ctHeight - ctPadding * 2 - ctGap * (boardSize - 1)) / boardSize
+        );
+
+        gameContainer.style.gridTemplateRows = `repeat(auto-fill, ${cellWidth}px)`;
+        gameContainer.style.gridTemplateColumns = `repeat(auto-fill, ${cellHeight}px)`;
+    };
+
+    const _newCell = () => {
+        const newCell = document.createElement("div");
+        newCell.classList.add("game-cell");
+        newCell.addEventListener("click", place);
+
+        return newCell;
     };
 
     const getTurn = () => _turn;
