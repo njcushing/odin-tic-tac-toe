@@ -43,21 +43,21 @@ h1, h2, h3, h4, h5, h6 {
 
 .game-container {
     display: grid;
-    grid-template-rows: repeat(auto-fill, 140px);
-    grid-template-columns: repeat(auto-fill, 140px);
     justify-content: center;
-    align-content: start;
-    gap: 20px;
-    padding: 20px;
+    align-content: center;
     background-color: #ececec;
-    width: 500px;
-    height: 500px;
     border: 1px solid #000;
 }
 
 .game-cell {
-    width: 140px;
-    height: 140px;
+    display: flex;
+    justify-content: center;
     background-color: #ffffff;
     border: 1px solid #000;
+    padding: 0px;
+}
+.game-cell-char {
+    position: relative;
+    place-self: center;
+    font-size: 8rem;
 }
