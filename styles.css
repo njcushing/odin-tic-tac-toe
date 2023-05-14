@@ -37,17 +37,27 @@ h1, h2, h3, h4, h5, h6 {
     display: grid;
     grid-template-rows: repeat(2, auto);
     justify-content: center;
-    align-content: start;
+    align-content: center;
     height: inherit;
 }
 
 .game-container {
-    width: 500px;
-    height: 500px;
+    display: grid;
+    grid-template-rows: repeat(auto-fill, 140px);
+    grid-template-columns: repeat(auto-fill, 140px);
     justify-content: center;
     align-content: start;
     gap: 20px;
     padding: 20px;
     background-color: #ececec;
+    width: 500px;
+    height: 500px;
+    border: 1px solid #000;
+}
+
+.game-cell {
+    width: 140px;
+    height: 140px;
+    background-color: #ffffff;
     border: 1px solid #000;
 }
