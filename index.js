@@ -65,6 +65,9 @@ const Player = (name, char) => {
 };
 
 const gameControl = (() => {
+    const _ctWidth = 500;
+    const _ctHeight = 500;
+    const _ctPadding = 16;
     const _players = [];
     let _turn = 0;
 
@@ -160,20 +163,17 @@ const gameControl = (() => {
             gameContainer.appendChild(newCell);
         }
 
-        const ctWidth = 500;
-        gameContainer.style.width = `${ctWidth}px`;
-        const ctHeight = 500;
-        gameContainer.style.height = `${ctHeight}px`;
-        const ctPadding = 20;
-        gameContainer.style.padding = `${ctPadding}px`;
+        gameContainer.style.width = `${_ctWidth}px`;
+        gameContainer.style.height = `${_ctHeight}px`;
+        gameContainer.style.padding = `${_ctPadding}px`;
         const ctGap = Math.floor(20 / boardSize);
         gameContainer.style.gap = `${ctGap}px`;
 
         const cellWidth = Math.floor(
-            (ctWidth - ctPadding * 2 - ctGap * (boardSize - 1)) / boardSize
+            (_ctWidth - _ctPadding * 2 - ctGap * (boardSize - 1)) / boardSize
         );
         const cellHeight = Math.floor(
-            (ctHeight - ctPadding * 2 - ctGap * (boardSize - 1)) / boardSize
+            (_ctHeight - _ctPadding * 2 - ctGap * (boardSize - 1)) / boardSize
         );
 
         gameContainer.style.gridTemplateRows = `repeat(auto-fill, ${cellWidth}px)`;
