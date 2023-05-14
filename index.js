@@ -1,7 +1,6 @@
-const gameControl = (() => {
-    const boardSize = 3;
+const gameBoard = (() => {
+    let boardSize = 3;
     let board = [];
-    let turn = 0;
 
     const reset = () => {
         board = [];
@@ -12,59 +11,99 @@ const gameControl = (() => {
             }
         }
     };
-    reset();
 
-    const place = (x, y) => {
+    const place = (x, y, char) => {
         if (y >= 0 && y <= board.length && x >= 0 && x <= board[0].length) {
             if (board[y][x] === null) {
-                if (turn === 0) {
-                    board[y][x] = "o";
-                    checkWin(x, y, "o");
-                    turn = 1;
-                } else {
-                    board[y][x] = "x";
-                    checkWin(x, y, "x");
-                    turn = 0;
-                }
-            } else {
-                alert(`There is already a '${board[y][x]}' here.`);
+                board[y][x] = char;
+                return true;
             }
+            return false;
+        }
+        return false;
+    };
+
+    const setBoardSize = (size) => {
+        boardSize = size;
+    };
+
+    const getBoard = () => board;
+
+    return {
+        reset,
+        place,
+        setBoardSize,
+        getBoard,
+    };
+})();
+
+const Player = (name) => {
+    const setName = (newName) => {
+        name = newName;
+    };
+
+    const getName = () => name;
+
+    return { setName, getName };
+};
+
+const gameControl = (() => {
+    const players = [];
+    let turn = 0;
+
+    const reset = () => {
+        gameBoard.setBoardSize(3);
+        gameBoard.reset();
+        randomPlayer();
+    };
+
+    const randomPlayer = () => {
+        turn = Math.floor(Math.random() * (players.length - 1) + 0.5);
+    };
+
+    const place = (x, y) => {
+        if (gameBoard.place(x, y, players[turn].char)) {
+            checkWin(x, y, players[turn].char);
+            turn = (turn + 1) % players.length;
+        } else {
+            alert(`There is already a '${gameBoard.getBoard()[y][x]}' here.`);
         }
     };
 
     const checkWin = (x, y, char) => {
-        for (let col = 0; col < board[y].length; col++) {
-            if (board[y][col] !== char) {
+        const boardState = gameBoard.getBoard();
+        for (let col = 0; col < boardState[y].length; col++) {
+            if (boardState[y][col] !== char) {
                 return;
             }
-            if (col === board[y].length - 1) {
+            if (col === boardState[y].length - 1) {
                 announceWin();
             }
         }
-        for (let row = 0; row < board.length; row++) {
-            if (board[row][x] !== char) {
+        for (let row = 0; row < boardState.length; row++) {
+            if (boardState[row][x] !== char) {
                 return;
             }
-            if (row === board.length - 1) {
+            if (row === boardState.length - 1) {
                 announceWin();
             }
         }
         if (x === y) {
-            for (let i = 0; i < board.length; i++) {
-                if (board[i][i] !== char) {
+            for (let i = 0; i < boardState.length; i++) {
+                if (boardState[i][i] !== char) {
                     return;
                 }
-                if (i === board.length - 1) {
+                if (i === boardState.length - 1) {
                     announceWin();
                 }
             }
         }
-        if (x + y === board.length - 1) {
-            for (let i = 0; i < board.length; i++) {
-                if (board[i][board.length - 1 - i] !== char) {
+        if (x + y === boardState.length - 1) {
+            for (let i = 0; i < boardState.length; i++) {
+                if (boardState[i][boardState.length - 1 - i] !== char) {
                     return;
                 }
-                if (i === board.length - 1) {
+                if (i === boardState.length - 1) {
                     announceWin();
                 }
             }
@@ -75,15 +114,13 @@ const gameControl = (() => {
         alert(`Player ${turn} has won the game!`);
     };
 
-    const getBoard = () => board;
     const getTurn = () => turn;
+
+    reset();
 
     return {
         reset,
         place,
-        getBoard,
         getTurn,
     };
 })();
-
-console.log(gameControl.getBoard());
