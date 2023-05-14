@@ -39,6 +39,7 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: center;
     align-content: center;
     height: inherit;
+    gap: 10px;
 }
 
 .game-container {
@@ -60,4 +61,30 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
     place-self: center;
     font-size: 8rem;
+}
+
+.game-buttons {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.reset-game,
+.change-game-size {
+    font-family: var(--nunito-font-family);
+    font-size: 0.8rem;
+    font-weight: bold;
+    border-radius: 9999px;
+    color: white;
+    background-color: #25ad69;
+    border: 2px solid white;
+    height: 2rem;
+    width: 8rem;
+}
+.reset-game:hover,
+.change-game-size:hover {
+    background-color: #38c47e;
+}
+.reset-game:active,
+.change-game-size:active {
+    background-color: #1e975b;
 }
