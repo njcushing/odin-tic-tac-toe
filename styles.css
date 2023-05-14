@@ -1,0 +1,53 @@
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300&family=Staatliches&display=swap');
+
+body {
+    font-family: Nunito, system-ui, "Segoe UI", Roboto, Helvetica, Arial,
+        sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: var(--nunito-font-family);
+    margin: 0;
+    justify-content: center;
+    min-width: 100vw;
+    min-height: 100vh;
+    height: 100vh;
+}
+
+:root {
+    --nunito-font-family: Nunito, system-ui, "Segoe UI", Roboto, Helvetica, Arial,
+        sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 20px;
+}
+
+.no-select {
+    -webkit-touch-callout: none;    /* iOS Safari */
+    -webkit-user-select: none;      /* Safari */
+    -khtml-user-select: none;       /* Konqueror HTML */
+    -moz-user-select: none;         /* Old versions of Firefox */
+    -ms-user-select: none;          /* Internet Explorer/Edge */
+    user-select: none;              /* Non-prefixed version, currently
+                                       supported by Chrome, Edge, Opera and Firefox */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    padding: 0px;
+    margin: 0px;
+}
+
+.main {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    justify-content: center;
+    align-content: start;
+    height: inherit;
+}
+
+.game-container {
+    width: 500px;
+    height: 500px;
+    justify-content: center;
+    align-content: start;
+    gap: 20px;
+    padding: 20px;
+    background-color: #ececec;
+    border: 1px solid #000;
+}
