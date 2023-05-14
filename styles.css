@@ -46,6 +46,7 @@ h1, h2, h3, h4, h5, h6 {
     display: grid;
     justify-content: center;
     align-content: center;
+    border-radius: 0.3rem;
     background-color: #ececec;
     border: 1px solid #000;
 }
@@ -53,9 +54,16 @@ h1, h2, h3, h4, h5, h6 {
 .game-cell {
     display: flex;
     justify-content: center;
-    background-color: #ffffff;
-    border: 1px solid #000;
-    padding: 0px;
+    background-color: #e6f9fc;
+    outline: 1px solid #000;
+}
+.game-cell:hover {
+    background-color: #cbedee;
+    outline: 2px solid #000;
+}
+.game-cell:active {
+    background-color: #b2d2d3;
+    outline: 2px solid #000;
 }
 .game-cell-char {
     position: relative;
@@ -69,22 +77,31 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .reset-game,
-.change-game-size {
+.change-board-size {
     font-family: var(--nunito-font-family);
     font-size: 0.8rem;
     font-weight: bold;
     border-radius: 9999px;
     color: white;
-    background-color: #25ad69;
+    background-color: rgb(180, 40, 40);
     border: 2px solid white;
     height: 2rem;
     width: 8rem;
 }
-.reset-game:hover,
-.change-game-size:hover {
-    background-color: #38c47e;
+.reset-game:hover {
+    background-color: rgb(211, 57, 57);
 }
-.reset-game:active,
-.change-game-size:active {
-    background-color: #1e975b;
+.reset-game:active {
+    background-color: rgb(119, 19, 19);
+}
+
+.change-board-size {
+    color: rgb(255, 255, 255);
+    background-color: #12a2db;
+}
+.change-board-size:hover {
+    background-color: #28bbf5;
+}
+.change-board-size:active {
+    background-color: #078cc0;
 }
