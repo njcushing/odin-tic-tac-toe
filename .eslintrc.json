@@ -12,6 +12,9 @@
     },
     "rules": {
         "indent": ["error", 4],
-        "quotes": ["error", "double"]
+        "quotes": ["error", "double"],
+        "operator-linebreak": ["error", "after"],
+        "wrap-iife": ["error", "inside"],
+        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
     }
 }
