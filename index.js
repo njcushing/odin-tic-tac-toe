@@ -69,6 +69,7 @@ const gameControl = (() => {
     const _enabled = true;
     let _turn = 0;
     const _resetButton = document.querySelector(".reset-game");
+    const _changeBoardSizeButton = document.querySelector(".change-board-size");
 
     const addPlayer = (name, char) => {
         for (let i = 0; i < _players.length; i++) {
@@ -84,7 +85,6 @@ const gameControl = (() => {
 
     const reset = () => {
         _resetGameCells();
-        gameBoard.setBoardSize(3);
         gameBoard.reset();
         _randomPlayer();
     };
@@ -93,6 +93,29 @@ const gameControl = (() => {
     const _randomPlayer = () => {
         _turn = Math.floor(Math.random() * (_players.length - 1) + 0.5);
     };
+
+    const _changeBoardSize = () => {
+        let newBoardSize;
+        while (true) {
+            newBoardSize = prompt(
+                "Select a new board size between 3 and 9 inclusive:"
+            );
+            if (newBoardSize == null) {
+                return;
+            }
+            newBoardSize = parseInt(newBoardSize);
+            if (isNaN(newBoardSize)) {
+                continue;
+            }
+            if (newBoardSize < 3 || newBoardSize > 9) {
+                continue;
+            }
+            break;
+        }
+        gameBoard.setBoardSize(newBoardSize);
+        reset();
+    };
+    _changeBoardSizeButton.addEventListener("click", _changeBoardSize);
 
     const place = (x, y) => {
         if (_enabled) {
