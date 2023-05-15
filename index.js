@@ -70,18 +70,23 @@ const gameControl = (() => {
     let _turn = 0;
     const _resetButton = document.querySelector(".reset-game");
     const _changeBoardSizeButton = document.querySelector(".change-board-size");
+    const _playerOneName = document.querySelector(".player-one .player-name");
+    const _playerTwoName = document.querySelector(".player-two .player-name");
 
-    const addPlayer = (name, char) => {
-        for (let i = 0; i < _players.length; i++) {
-            if (_players[i].getChar() === char) {
-                alert("This character is already in use. Please pick another.");
-                return;
-            }
-        }
-        const newPlayer = Player(name, char);
-        _players.push(newPlayer);
-        reset();
+    _players.push(Player(null, null));
+    _players.push(Player(null, null));
+
+    const _changePlayerName = (e, index) => {
+        console.log(e);
     };
+    _playerOneName.addEventListener(
+        "input",
+        _changePlayerName.bind(_playerOneName, 0)
+    );
+    _playerTwoName.addEventListener(
+        "input",
+        _changePlayerName.bind(_playerTwoName, 1)
+    );
 
     const reset = () => {
         _resetGameCells();
@@ -172,7 +177,6 @@ const gameControl = (() => {
 
     const _resetGameCells = () => {
         const gameArea = document.querySelector(".game-area");
-        console.log(gameArea.style);
         const areaWidth = parseInt(gameArea.style.width, 10);
         const areaHeight = parseInt(gameArea.style.height, 10);
 
