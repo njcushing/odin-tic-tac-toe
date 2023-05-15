@@ -65,11 +65,10 @@ const Player = (name, char) => {
 };
 
 const gameControl = (() => {
-    const _ctWidth = 500;
-    const _ctHeight = 500;
-    const _ctPadding = 16;
     const _players = [];
+    const _enabled = true;
     let _turn = 0;
+    const _resetButton = document.querySelector(".reset-game");
 
     const addPlayer = (name, char) => {
         for (let i = 0; i < _players.length; i++) {
@@ -89,20 +88,17 @@ const gameControl = (() => {
         gameBoard.reset();
         _randomPlayer();
     };
+    _resetButton.addEventListener("click", reset);
 
     const _randomPlayer = () => {
         _turn = Math.floor(Math.random() * (_players.length - 1) + 0.5);
     };
 
     const place = (x, y) => {
-        if (_players.length >= 2) {
+        if (_enabled) {
             if (gameBoard.place(x, y, _players[_turn].getChar())) {
                 _checkWin(x, y, _players[_turn].getChar());
                 _turn = (_turn + 1) % _players.length;
-            } else {
-                alert(
-                    `There is already a '${gameBoard.getBoard()[y][x]}' here.`
-                );
             }
         }
     };
@@ -152,28 +148,33 @@ const gameControl = (() => {
     };
 
     const _resetGameCells = () => {
+        const gameArea = document.querySelector(".game-area");
+        console.log(gameArea.style);
+        const areaWidth = parseInt(gameArea.style.width, 10);
+        const areaHeight = parseInt(gameArea.style.height, 10);
+
         const gameCells = document.querySelectorAll(".game-cell");
         gameCells.forEach((cell) => cell.parentNode.removeChild(cell));
 
         const boardSize = gameBoard.getBoardSize();
         const gameContainer = document.querySelector(".game-container");
+        const contPadding = parseInt(gameContainer.style.padding, 10);
 
         for (let i = 0; i < boardSize ** 2; i++) {
             const newCell = _newCell();
+            newCell.setAttribute("x", i % boardSize);
+            newCell.setAttribute("y", Math.floor(i / boardSize));
             gameContainer.appendChild(newCell);
         }
 
-        gameContainer.style.width = `${_ctWidth}px`;
-        gameContainer.style.height = `${_ctHeight}px`;
-        gameContainer.style.padding = `${_ctPadding}px`;
         const ctGap = Math.floor(20 / boardSize);
         gameContainer.style.gap = `${ctGap}px`;
 
         const cellWidth = Math.floor(
-            (_ctWidth - _ctPadding * 2 - ctGap * (boardSize - 1)) / boardSize
+            (areaWidth - contPadding * 2 - ctGap * (boardSize - 1)) / boardSize
         );
         const cellHeight = Math.floor(
-            (_ctHeight - _ctPadding * 2 - ctGap * (boardSize - 1)) / boardSize
+            (areaHeight - contPadding * 2 - ctGap * (boardSize - 1)) / boardSize
         );
 
         gameContainer.style.gridTemplateRows = `repeat(auto-fill, ${cellWidth}px)`;
