@@ -35,14 +35,94 @@ h1, h2, h3, h4, h5, h6 {
 
 .main {
     display: grid;
-    grid-template-rows: repeat(2, auto);
+    grid-template-rows: repeat(3, auto);
     justify-content: center;
     align-content: center;
     height: inherit;
     gap: 10px;
 }
 
+.player-container {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    align-content: center;
+    background-color: #afafaf;
+    border: 1px solid #000;
+    border-radius: 0.3rem;
+    gap: 8px;
+    padding: 8px;
+}
+
+.player-info {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    background-color: #ffffff;
+    border: 1px solid #000;
+    border-radius: 0.3rem;
+    width: 500px;
+    gap: 30px;
+    padding: 8px;
+}
+
+.player-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.player-info[state="empty"] .player-name {
+    font-size: 0.8rem;
+    font-style: italic;
+    font-weight: normal;
+}
+.player-info[state="occupied"] .player-name {
+    font-size: 1.2rem;
+    font-style: normal;
+    font-weight: bold;
+}
+
+.player-char {
+    justify-self: end;
+}
+
+.player-info > button {
+    grid-area: 1 / -1 / 2 / -2;
+    justify-self: end;
+    font-size: 1.8rem;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    border-radius: 50%;
+    border: none;
+    width: 40px;
+    height: 40px;
+}
+.player-info[state="empty"] > .remove-player {
+    z-index: -1;
+}
+.player-info[state="occupied"] > .remove-player {
+    z-index: 0;
+}
+.add-player {
+    background-color: #1db336;
+}
+.add-player:hover {
+    background-color: #34d14e;
+}
+.add-player:active {
+    background-color: #0e8822;
+}
+.remove-player {
+    background-color: #b12727;
+}
+.remove-player:hover {
+    background-color: #d64646;
+}
+.remove-player:active {
+    background-color: #911919;
+}
+
 .game-container {
+    justify-self: center;
     display: grid;
     justify-content: center;
     align-content: center;
