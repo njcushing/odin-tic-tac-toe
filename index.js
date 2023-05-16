@@ -71,8 +71,8 @@ const gameControl = (() => {
     const _playerOneName = document.querySelector(".player-one .player-name");
     const _playerTwoName = document.querySelector(".player-two .player-name");
 
-    _players.push(Player(null, "O"));
-    _players.push(Player(null, "X"));
+    _players.push(Player(null, "o"));
+    _players.push(Player(null, "x"));
 
     const _changePlayerName = (e, index) => {
         _players[index].setName(e.target.value);
@@ -133,13 +133,23 @@ const gameControl = (() => {
         if (_enabled) {
             const char = _players[_turn].getChar();
             if (gameBoard.place(x, y, char)) {
+                const cell = document.querySelector(
+                    `.game-cell[x="${x}"][y="${y}"]`
+                );
+                const img = cell.childNodes[0];
+                cell.classList.add(char);
+                switch (char) {
+                    case "o":
+                        img.setAttribute("src", "./img/nought.png");
+                        break;
+                    case "x":
+                        img.setAttribute("src", "./img/cross.png");
+                        break;
+                }
+                cell.childNodes[0].classList.add("no-select");
                 _checkWin(x, y, char);
                 _turn = (_turn + 1) % _players.length;
             }
-            const cell = document.querySelector(
-                `.game-cell[x="${x}"][y="${y}"]`
-            );
-            cell.classList.add(char);
         }
     };
 
@@ -208,6 +218,9 @@ const gameControl = (() => {
             newCell.setAttribute("x", i % boardSize);
             newCell.setAttribute("y", Math.floor(i / boardSize));
             gameContainer.appendChild(newCell);
+
+            const img = document.createElement("img");
+            newCell.appendChild(img);
         }
 
         const ctGap = Math.floor(20 / boardSize);
