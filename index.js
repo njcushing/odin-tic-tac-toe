@@ -42,7 +42,7 @@ const gameBoard = (() => {
 
 const Player = (name, char) => {
     let _name = name;
-    let _char = char;
+    const _char = char;
 
     const setName = (newName) => {
         _name = newName;
@@ -50,43 +50,50 @@ const Player = (name, char) => {
 
     const getName = () => _name;
 
-    const setChar = (newChar) => {
-        _char = newChar;
-    };
-
     const getChar = () => _char;
 
     return {
         setName,
         getName,
-        setChar,
         getChar,
     };
 };
 
 const gameControl = (() => {
     const _players = [];
+    const _AI = false;
     const _enabled = true;
     let _turn = 0;
+    const _gameArea = document.querySelector(".game-area");
+    const _AIButton = document.querySelector(".ai-button");
     const _resetButton = document.querySelector(".reset-game");
     const _changeBoardSizeButton = document.querySelector(".change-board-size");
     const _playerOneName = document.querySelector(".player-one .player-name");
     const _playerTwoName = document.querySelector(".player-two .player-name");
 
-    _players.push(Player(null, null));
-    _players.push(Player(null, null));
+    _players.push(Player(null, "O"));
+    _players.push(Player(null, "X"));
 
     const _changePlayerName = (e, index) => {
-        console.log(e);
+        _players[index].setName(e.target.value);
+        if (_players[index].getName() === "") {
+            _players[index].setName(null);
+        }
+        _checkGamePlayable();
     };
-    _playerOneName.addEventListener(
-        "input",
-        _changePlayerName.bind(_playerOneName, 0)
-    );
-    _playerTwoName.addEventListener(
-        "input",
-        _changePlayerName.bind(_playerTwoName, 1)
-    );
+    _playerOneName.addEventListener("input", () => _changePlayerName(event, 0));
+    _playerTwoName.addEventListener("input", () => _changePlayerName(event, 1));
+
+    const _checkGamePlayable = () => {
+        if (
+            _players[0].getName() !== null &&
+            (_players[1].getName() !== null || _AI)
+        ) {
+            _gameArea.setAttribute("playing", "");
+        } else {
+            _gameArea.removeAttribute("playing");
+        }
+    };
 
     const reset = () => {
         _resetGameCells();
@@ -124,10 +131,15 @@ const gameControl = (() => {
 
     const place = (x, y) => {
         if (_enabled) {
-            if (gameBoard.place(x, y, _players[_turn].getChar())) {
-                _checkWin(x, y, _players[_turn].getChar());
+            const char = _players[_turn].getChar();
+            if (gameBoard.place(x, y, char)) {
+                _checkWin(x, y, char);
                 _turn = (_turn + 1) % _players.length;
             }
+            const cell = document.querySelector(
+                `.game-cell[x="${x}"][y="${y}"]`
+            );
+            cell.classList.add(char);
         }
     };
 
@@ -188,7 +200,11 @@ const gameControl = (() => {
         const contPadding = parseInt(gameContainer.style.padding, 10);
 
         for (let i = 0; i < boardSize ** 2; i++) {
-            const newCell = _newCell();
+            const newCell = document.createElement("div");
+            newCell.classList.add("game-cell");
+            newCell.addEventListener("click", () =>
+                place(i % boardSize, Math.floor(i / boardSize))
+            );
             newCell.setAttribute("x", i % boardSize);
             newCell.setAttribute("y", Math.floor(i / boardSize));
             gameContainer.appendChild(newCell);
@@ -206,14 +222,6 @@ const gameControl = (() => {
 
         gameContainer.style.gridTemplateRows = `repeat(auto-fill, ${cellWidth}px)`;
         gameContainer.style.gridTemplateColumns = `repeat(auto-fill, ${cellHeight}px)`;
-    };
-
-    const _newCell = () => {
-        const newCell = document.createElement("div");
-        newCell.classList.add("game-cell");
-        newCell.addEventListener("click", place);
-
-        return newCell;
     };
 
     const getTurn = () => _turn;
