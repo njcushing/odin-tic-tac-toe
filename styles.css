@@ -55,10 +55,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .player-info {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: repeat(3, auto);
     align-items: center;
     background-color: #ffffff;
-    border: 1px solid #000;
     border-radius: 0.3rem;
     width: 500px;
     gap: 30px;
@@ -66,7 +65,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .player-name {
-    width: auto;
+    width: 360px;
     height: 1.4rem;
     border-radius: 9999px;
     border: none;
@@ -83,7 +82,11 @@ h1, h2, h3, h4, h5, h6 {
 .player-name:focus::placeholder {
     color: transparent;
 }
-
+.player-name[required]:invalid {
+    outline-color: red;
+    background-color: rgba(255, 106, 106, 0.18);
+    border-color: red;
+}
 
 .player-info[state="empty"] .player-name {
     font-size: 0.8rem;
@@ -100,10 +103,10 @@ h1, h2, h3, h4, h5, h6 {
     justify-self: end;
 }
 
-.player-info > button {
+.ai-button {
     grid-area: 1 / -1 / 2 / -2;
     justify-self: end;
-    font-size: 1.8rem;
+    font-size: 1.2rem;
     text-align: center;
     color: rgb(255, 255, 255);
     border-radius: 50%;
@@ -111,29 +114,23 @@ h1, h2, h3, h4, h5, h6 {
     width: 40px;
     height: 40px;
 }
-.player-info[state="empty"] > .remove-player {
-    z-index: -1;
+.ai-button {
+    background-color: #1e81c4;
 }
-.player-info[state="occupied"] > .remove-player {
-    z-index: 0;
+.ai-button:hover {
+    background-color: #41a1e0;
 }
-.add-player {
-    background-color: #1db336;
+.ai-button:active {
+    background-color: #0f649c;
 }
-.add-player:hover {
-    background-color: #34d14e;
+.player-two[state="empty"] .ai-button {
+    background-color: #383838;
 }
-.add-player:active {
-    background-color: #0e8822;
+.player-two[state="empty"] .ai-button:hover {
+    background-color: #5f5f5f;
 }
-.remove-player {
-    background-color: #b12727;
-}
-.remove-player:hover {
-    background-color: #d64646;
-}
-.remove-player:active {
-    background-color: #911919;
+.player-two[state="empty"] .ai-button:active {
+    background-color: #1f1f1f;
 }
 
 .game-area {
@@ -153,6 +150,9 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 0.3rem;
     background-color: rgba(0, 0, 0, 0.64);
     padding: 20px;
+}
+.game-area[playing] .game-cover {
+    z-index: -1;
 }
 
 .game-container {
