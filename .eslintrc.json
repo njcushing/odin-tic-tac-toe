@@ -11,12 +11,13 @@
         "ecmaVersion": "latest"
     },
     "rules": {
-        "indent": ["error", 4],
+        "indent": ["error", 4, { "SwitchCase": 1 }],
         "quotes": ["error", "double"],
         "operator-linebreak": ["error", "after"],
         "wrap-iife": ["error", "inside"],
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
         "no-use-before-define": ["error", { "variables": false }],
-        "no-underscore-dangle": "off"
+        "no-underscore-dangle": "off",
+        "no-plusplus": "off"
     }
 }
