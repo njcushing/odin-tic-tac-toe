@@ -246,7 +246,7 @@ const gameControl = (() => {
             }
             if (_gameWin) {
                 _currentInfo.textContent = `${_players[
-                    turn
+                    (turn + 1) % _players.length
                 ].getName()} (Player ${
                     ((turn + 1) % _players.length) + 1
                 }) is the winner!`;
