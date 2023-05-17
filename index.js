@@ -62,7 +62,6 @@ const Player = (name, char) => {
 const gameControl = (() => {
     const _players = [];
     const _AI = false;
-    const _enabled = true;
     let _turn = 0;
     const _gameArea = document.querySelector(".game-area");
     const _AIButton = document.querySelector(".ai-button");
@@ -99,6 +98,7 @@ const gameControl = (() => {
         _resetGameCells();
         gameBoard.reset();
         _randomPlayer();
+        _gameArea.classList.remove("game-over");
     };
     _resetButton.addEventListener("click", reset);
 
@@ -130,7 +130,7 @@ const gameControl = (() => {
     _changeBoardSizeButton.addEventListener("click", _changeBoardSize);
 
     const place = (x, y) => {
-        if (_enabled) {
+        if (!_gameArea.classList.contains("game-over")) {
             const char = _players[_turn].getChar();
             if (gameBoard.place(x, y, char)) {
                 const cell = document.querySelector(
@@ -195,6 +195,7 @@ const gameControl = (() => {
 
     const _announceWin = () => {
         alert(`Player ${_players[_turn].getName()} has won the game!`);
+        _gameArea.classList.add("game-over");
     };
 
     const _resetGameCells = () => {
