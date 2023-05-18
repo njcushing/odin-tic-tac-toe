@@ -14,7 +14,7 @@ const gameControl = (() => {
                 _players[player - 1].setName(null);
             }
             _checkGamePlayable();
-            displayControl.updatePlayerNames();
+            _displayControl.updatePlayerNames();
         }
     };
 
@@ -23,25 +23,25 @@ const gameControl = (() => {
             _players[0].getName() !== null &&
             (_players[1].getName() !== null || _AI)
         ) {
-            displayControl.updateInformationString();
+            _displayControl.updateInformationString();
             _firstGameStarted = true;
-            displayControl.setGamePlaying(true);
+            _displayControl.setGamePlaying(true);
         } else {
-            displayControl.updateInformationString();
-            displayControl.setGamePlaying(false);
+            _displayControl.updateInformationString();
+            _displayControl.setGamePlaying(false);
         }
     };
 
     const reset = () => {
-        displayControl.resetGameCells();
-        gameBoard.reset();
+        _displayControl.resetGameCells();
+        _gameBoard.reset();
         _randomPlayer();
         _movesPlayed = 0;
         _gameWin = false;
         _gameDraw = false;
-        displayControl.setGameOver(false);
+        _displayControl.setGameOver(false);
         if (_firstGameStarted) {
-            displayControl.updateInformationString();
+            _displayControl.updateInformationString();
         }
     };
 
@@ -67,19 +67,19 @@ const gameControl = (() => {
             }
             break;
         }
-        gameBoard.setBoardSize(newBoardSize);
+        _gameBoard.setBoardSize(newBoardSize);
         reset();
     };
 
     const toggleAI = () => {
         _AI = !_AI;
-        displayControl.toggleAIButton();
+        _displayControl.toggleAIButton();
     };
 
     const place = (x, y) => {
         if (!_gameWin && !_gameDraw) {
             const char = _players[turn].getChar();
-            if (gameBoard.place(x, y, char)) {
+            if (_gameBoard.place(x, y, char)) {
                 const cell = document.querySelector(
                     `.game-cell[x="${x}"][y="${y}"]`
                 );
@@ -99,21 +99,21 @@ const gameControl = (() => {
                 _movesPlayed++;
                 _checkWin(x, y, char);
                 turn = (turn + 1) % _players.length;
-                displayControl.updateInformationString();
+                _displayControl.updateInformationString();
             }
         }
     };
 
     const _checkWin = (x, y, char) => {
-        const boardState = gameBoard.getBoard();
-        const boardSize = gameBoard.getBoardSize();
+        const boardState = _gameBoard.getBoard();
+        const boardSize = _gameBoard.getBoardSize();
         for (let col = 0; col < boardState[y].length; col++) {
             if (boardState[y][col] !== char) {
                 break;
             }
             if (col === boardState[y].length - 1) {
                 _gameWin = true;
-                displayControl.setGameOver(true);
+                _displayControl.setGameOver(true);
                 return;
             }
         }
@@ -123,7 +123,7 @@ const gameControl = (() => {
             }
             if (row === boardState.length - 1) {
                 _gameWin = true;
-                displayControl.setGameOver(true);
+                _displayControl.setGameOver(true);
                 return;
             }
         }
@@ -134,7 +134,7 @@ const gameControl = (() => {
                 }
                 if (i === boardState.length - 1) {
                     _gameWin = true;
-                    displayControl.setGameOver(true);
+                    _displayControl.setGameOver(true);
                     return;
                 }
             }
@@ -146,18 +146,18 @@ const gameControl = (() => {
                 }
                 if (i === boardState.length - 1) {
                     _gameWin = true;
-                    displayControl.setGameOver(true);
+                    _displayControl.setGameOver(true);
                     return;
                 }
             }
         }
         if (_movesPlayed === boardSize ** 2) {
             _gameDraw = true;
-            displayControl.setGameOver(true);
+            _displayControl.setGameOver(true);
         }
     };
 
-    const gameBoard = (() => {
+    const _gameBoard = (() => {
         let _boardSize = 3;
         let _board = [];
 
@@ -225,7 +225,7 @@ const gameControl = (() => {
     _players.push(Player(null, "o"));
     _players.push(Player(null, "x"));
 
-    const displayControl = (() => {
+    const _displayControl = (() => {
         const _gameArea = document.querySelector(".game-area");
         const _currentInfo = document.querySelector(".current-info");
         const _resetButton = document.querySelector(".reset-game");
@@ -341,7 +341,7 @@ const gameControl = (() => {
             const gameCells = document.querySelectorAll(".game-cell");
             gameCells.forEach((cell) => cell.parentNode.removeChild(cell));
 
-            const boardSize = gameBoard.getBoardSize();
+            const boardSize = _gameBoard.getBoardSize();
             const gameContainer = document.querySelector(".game-container");
             const contPadding = parseInt(gameContainer.style.padding, 10);
 
@@ -387,14 +387,17 @@ const gameControl = (() => {
 
     const getTurn = () => turn;
 
+    const getBoard = () => _gameBoard.getBoard();
+
     reset();
 
     return {
-        reset,
-        place,
-        changeBoardSize,
         changePlayerName,
+        reset,
+        changeBoardSize,
         toggleAI,
+        place,
         getTurn,
+        getBoard,
     };
 })();
