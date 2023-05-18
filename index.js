@@ -19,13 +19,14 @@ const Player = (name, char) => {
 
 const gameControl = (() => {
     const _players = [];
-    const _AI = false;
+    let _AI = false;
     let turn = 0;
     let _movesPlayed = 0;
     let _firstGameStarted = false;
     let _gameWin = false;
     let _gameDraw = false;
     const _gameArea = document.querySelector(".game-area");
+    const _AIButton = document.querySelector(".ai-button");
     const _playerOneName = document.querySelector(".player-one .player-name");
     const _playerTwoName = document.querySelector(".player-two .player-name");
 
@@ -94,6 +95,19 @@ const gameControl = (() => {
         gameBoard.setBoardSize(newBoardSize);
         reset();
     };
+
+    const toggleAI = () => {
+        if (_AI) {
+            _AI = false;
+            _gameArea.classList.remove("AI");
+            _AIButton.classList.remove("AI");
+        } else {
+            _AI = true;
+            _gameArea.classList.add("AI");
+            _AIButton.classList.add("AI");
+        }
+    };
+    _AIButton.addEventListener("click", toggleAI);
 
     const place = (x, y) => {
         if (!_gameArea.classList.contains("game-over")) {
@@ -224,7 +238,6 @@ const gameControl = (() => {
     })();
 
     const displayControl = (() => {
-        const _AIButton = document.querySelector(".ai-button");
         const _currentInfo = document.querySelector(".current-info");
         const _resetButton = document.querySelector(".reset-game");
         const _changeBoardSizeButton =
@@ -342,6 +355,7 @@ const gameControl = (() => {
         reset,
         place,
         changeBoardSize,
+        toggleAI,
         getTurn,
     };
 })();
