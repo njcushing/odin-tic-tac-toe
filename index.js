@@ -1,6 +1,9 @@
 const gameControl = (() => {
     const _players = [];
     let _AI = false;
+    let _AIMoving = false;
+    let _AIMovingTimeoutID;
+    let _AIMovingPlaceOverride = false;
     let turn = 0;
     let _movesPlayed = 0;
     let _firstGameStarted = false;
@@ -39,7 +42,9 @@ const gameControl = (() => {
         _movesPlayed = 0;
         _gameWin = false;
         _gameDraw = false;
+        clearTimeout(_AIMovingTimeoutID);
         _checkRestrictedInput();
+        _checkAIMove();
         if (_firstGameStarted) {
             _displayControl.updateInformationString();
         }
@@ -72,14 +77,44 @@ const gameControl = (() => {
     };
 
     const toggleAI = () => {
-        _AI = !_AI;
-        _checkGamePlayable();
-        _checkRestrictedInput();
-        _displayControl.toggleAIButton();
+        if (!_AIMoving) {
+            _AI = !_AI;
+            _checkGamePlayable();
+            _checkRestrictedInput();
+            _displayControl.toggleAIButton();
+            _checkAIMove();
+        }
+    };
+
+    const _checkAIMove = () => {
+        if (!_gameWin && !_gameDraw && turn === 1 && _AI) {
+            _AIMovingTimeoutID = setTimeout(_AIMove, 3000);
+            _AIMoving = true;
+        }
+    };
+
+    const _AIMove = () => {
+        /* Random Mode - Store empty cells in array. Select one at random. */
+        const _boardSize = _gameBoard.getBoardSize();
+        const _currentBoard = _gameBoard.getBoard();
+        const _cells = [];
+        for (let i = 0; i < _boardSize ** 2; i++) {
+            const _cellX = i % _boardSize;
+            const _cellY = Math.floor(i / _boardSize);
+            if (_currentBoard[_cellY][_cellX] === null) {
+                _cells.push([_cellX, _cellY]);
+            }
+        }
+        const _randomCell = Math.floor(Math.random() * _cells.length);
+        _AIMovingPlaceOverride = true;
+        place(_cells[_randomCell][0], _cells[_randomCell][1]);
+
+        _AIMoving = false;
     };
 
     const place = (x, y) => {
-        if (!_checkRestrictedInput()) {
+        if (!_checkRestrictedInput() || _AIMovingPlaceOverride) {
+            _AIMovingPlaceOverride = false;
             const char = _players[turn].getChar();
             if (_gameBoard.place(x, y, char)) {
                 const cell = document.querySelector(
@@ -103,6 +138,7 @@ const gameControl = (() => {
                 turn = (turn + 1) % _players.length;
                 _displayControl.updateInformationString();
                 _checkRestrictedInput();
+                _checkAIMove();
             }
         }
     };
@@ -155,7 +191,7 @@ const gameControl = (() => {
         }
     };
 
-    _checkRestrictedInput = () => {
+    const _checkRestrictedInput = () => {
         if (_gameWin || _gameDraw || (turn === 1 && _AI)) {
             _displayControl.setRestrictInput(true);
             return true;
