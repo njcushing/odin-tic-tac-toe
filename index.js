@@ -6,20 +6,17 @@ const gameControl = (() => {
     let _firstGameStarted = false;
     let _gameWin = false;
     let _gameDraw = false;
-    const _gameArea = document.querySelector(".game-area");
-    const _AIButton = document.querySelector(".ai-button");
-    const _playerOneName = document.querySelector(".player-one .player-name");
-    const _playerTwoName = document.querySelector(".player-two .player-name");
 
-    const _changePlayerName = (e, index) => {
-        _players[index].setName(e.target.value);
-        if (_players[index].getName() === "") {
-            _players[index].setName(null);
+    const changePlayerName = (player, newName) => {
+        if (player === 1 || player === 2) {
+            _players[player - 1].setName(newName);
+            if (_players[player - 1].getName() === "") {
+                _players[player - 1].setName(null);
+            }
+            _checkGamePlayable();
+            displayControl.updatePlayerNames();
         }
-        _checkGamePlayable();
     };
-    _playerOneName.addEventListener("input", () => _changePlayerName(event, 0));
-    _playerTwoName.addEventListener("input", () => _changePlayerName(event, 1));
 
     const _checkGamePlayable = () => {
         if (
@@ -28,10 +25,10 @@ const gameControl = (() => {
         ) {
             displayControl.updateInformationString();
             _firstGameStarted = true;
-            _gameArea.classList.add("playing");
+            displayControl.setGamePlaying(true);
         } else {
             displayControl.updateInformationString();
-            _gameArea.classList.remove("playing");
+            displayControl.setGamePlaying(false);
         }
     };
 
@@ -42,7 +39,7 @@ const gameControl = (() => {
         _movesPlayed = 0;
         _gameWin = false;
         _gameDraw = false;
-        _gameArea.classList.remove("game-over");
+        displayControl.setGameOver(false);
         if (_firstGameStarted) {
             displayControl.updateInformationString();
         }
@@ -75,20 +72,12 @@ const gameControl = (() => {
     };
 
     const toggleAI = () => {
-        if (_AI) {
-            _AI = false;
-            _gameArea.classList.remove("AI");
-            _AIButton.classList.remove("AI");
-        } else {
-            _AI = true;
-            _gameArea.classList.add("AI");
-            _AIButton.classList.add("AI");
-        }
+        _AI = !_AI;
+        displayControl.toggleAIButton();
     };
-    _AIButton.addEventListener("click", toggleAI);
 
     const place = (x, y) => {
-        if (!_gameArea.classList.contains("game-over")) {
+        if (!_gameWin && !_gameDraw) {
             const char = _players[turn].getChar();
             if (gameBoard.place(x, y, char)) {
                 const cell = document.querySelector(
@@ -124,7 +113,7 @@ const gameControl = (() => {
             }
             if (col === boardState[y].length - 1) {
                 _gameWin = true;
-                _gameArea.classList.add("game-over");
+                displayControl.setGameOver(true);
                 return;
             }
         }
@@ -134,7 +123,7 @@ const gameControl = (() => {
             }
             if (row === boardState.length - 1) {
                 _gameWin = true;
-                _gameArea.classList.add("game-over");
+                displayControl.setGameOver(true);
                 return;
             }
         }
@@ -145,7 +134,7 @@ const gameControl = (() => {
                 }
                 if (i === boardState.length - 1) {
                     _gameWin = true;
-                    _gameArea.classList.add("game-over");
+                    displayControl.setGameOver(true);
                     return;
                 }
             }
@@ -157,14 +146,14 @@ const gameControl = (() => {
                 }
                 if (i === boardState.length - 1) {
                     _gameWin = true;
-                    _gameArea.classList.add("game-over");
+                    displayControl.setGameOver(true);
                     return;
                 }
             }
         }
         if (_movesPlayed === boardSize ** 2) {
             _gameDraw = true;
-            _gameArea.classList.add("game-over");
+            displayControl.setGameOver(true);
         }
     };
 
@@ -237,13 +226,28 @@ const gameControl = (() => {
     _players.push(Player(null, "x"));
 
     const displayControl = (() => {
+        const _gameArea = document.querySelector(".game-area");
         const _currentInfo = document.querySelector(".current-info");
         const _resetButton = document.querySelector(".reset-game");
         const _changeBoardSizeButton =
             document.querySelector(".change-board-size");
+        const _AIButton = document.querySelector(".ai-button");
+        const _playerOneName = document.querySelector(
+            ".player-one .player-name"
+        );
+        const _playerTwoName = document.querySelector(
+            ".player-two .player-name"
+        );
 
         _resetButton.addEventListener("click", reset);
         _changeBoardSizeButton.addEventListener("click", changeBoardSize);
+        _AIButton.addEventListener("click", toggleAI);
+        _playerOneName.addEventListener("input", () =>
+            changePlayerName(1, event.target.value)
+        );
+        _playerTwoName.addEventListener("input", () =>
+            changePlayerName(2, event.target.value)
+        );
 
         const updateInformationString = () => {
             if (
@@ -298,6 +302,37 @@ const gameControl = (() => {
             }
         };
 
+        const updatePlayerNames = () => {
+            _playerOneName.value = _players[0].getName();
+            _playerTwoName.value = _players[1].getName();
+        };
+
+        const toggleAIButton = () => {
+            if (_AI) {
+                _gameArea.classList.add("AI");
+                _AIButton.classList.add("AI");
+            } else {
+                _gameArea.classList.remove("AI");
+                _AIButton.classList.remove("AI");
+            }
+        };
+
+        const setGamePlaying = (bool) => {
+            if (bool) {
+                _gameArea.classList.add("playing");
+            } else {
+                _gameArea.classList.remove("playing");
+            }
+        };
+
+        const setGameOver = (bool) => {
+            if (bool) {
+                _gameArea.classList.add("game-over");
+            } else {
+                _gameArea.classList.remove("game-over");
+            }
+        };
+
         const resetGameCells = () => {
             const gameArea = document.querySelector(".game-area");
             const areaWidth = parseInt(gameArea.style.width, 10);
@@ -342,6 +377,10 @@ const gameControl = (() => {
 
         return {
             updateInformationString,
+            updatePlayerNames,
+            toggleAIButton,
+            setGamePlaying,
+            setGameOver,
             resetGameCells,
         };
     })();
@@ -354,6 +393,7 @@ const gameControl = (() => {
         reset,
         place,
         changeBoardSize,
+        changePlayerName,
         toggleAI,
         getTurn,
     };
