@@ -1,22 +1,3 @@
-const Player = (name, char) => {
-    let _name = name;
-    const _char = char;
-
-    const setName = (newName) => {
-        _name = newName;
-    };
-
-    const getName = () => _name;
-
-    const getChar = () => _char;
-
-    return {
-        setName,
-        getName,
-        getChar,
-    };
-};
-
 const gameControl = (() => {
     const _players = [];
     let _AI = false;
@@ -29,9 +10,6 @@ const gameControl = (() => {
     const _AIButton = document.querySelector(".ai-button");
     const _playerOneName = document.querySelector(".player-one .player-name");
     const _playerTwoName = document.querySelector(".player-two .player-name");
-
-    _players.push(Player(null, "o"));
-    _players.push(Player(null, "x"));
 
     const _changePlayerName = (e, index) => {
         _players[index].setName(e.target.value);
@@ -236,6 +214,27 @@ const gameControl = (() => {
             getBoard,
         };
     })();
+
+    const Player = (name, char) => {
+        let _name = name;
+        const _char = char;
+
+        const setName = (newName) => {
+            _name = newName;
+        };
+
+        const getName = () => _name;
+
+        const getChar = () => _char;
+
+        return {
+            setName,
+            getName,
+            getChar,
+        };
+    };
+    _players.push(Player(null, "o"));
+    _players.push(Player(null, "x"));
 
     const displayControl = (() => {
         const _currentInfo = document.querySelector(".current-info");
