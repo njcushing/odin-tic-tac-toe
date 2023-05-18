@@ -184,11 +184,11 @@ h1, h2, h3, h4, h5, h6 {
     padding: 10px;
 }
 
-.game-area:not(.game-over) .game-cell:hover:not(.o):not(.x) {
+.game-area:not(.restrict-input) .game-cell:hover:not(.o):not(.x) {
     background-color: #cbedee;
     outline: 2px solid #000;
 }
-.game-area:not(.game-over) .game-cell:active:not(.o):not(.x) {
+.game-area:not(.restrict-input) .game-cell:active:not(.o):not(.x) {
     background-color: #b2d2d3;
     outline: 2px solid #000;
 }
