@@ -73,6 +73,7 @@ const gameControl = (() => {
 
     const toggleAI = () => {
         _AI = !_AI;
+        _checkGamePlayable();
         _displayControl.toggleAIButton();
     };
 
@@ -252,7 +253,7 @@ const gameControl = (() => {
         const updateInformationString = () => {
             if (
                 _players[0].getName() === null ||
-                _players[1].getName() === null
+                (_players[1].getName() === null && !_AI)
             ) {
                 if (_firstGameStarted) {
                     _currentInfo.textContent =
@@ -261,11 +262,15 @@ const gameControl = (() => {
                 return;
             }
             if (_gameWin) {
-                _currentInfo.textContent = `${_players[
-                    (turn + 1) % _players.length
-                ].getName()} (Player ${
-                    ((turn + 1) % _players.length) + 1
-                }) is the winner!`;
+                if ((turn + 1) % _players.length === 1 && _AI) {
+                    _currentInfo.textContent = "The computer is the winner!";
+                } else {
+                    _currentInfo.textContent = `${_players[
+                        (turn + 1) % _players.length
+                    ].getName()} (Player ${
+                        ((turn + 1) % _players.length) + 1
+                    }) is the winner!`;
+                }
                 return;
             }
             if (_gameDraw) {
@@ -273,9 +278,16 @@ const gameControl = (() => {
                 return;
             }
             if (_movesPlayed === 0) {
-                _currentInfo.textContent = `Here we go! ${_players[
-                    turn
-                ].getName()} (Player ${turn + 1}), it's your turn first.`;
+                if (turn === 1 && _AI) {
+                    _currentInfo.textContent =
+                        "It's the computer's move to start us off.";
+                } else {
+                    _currentInfo.textContent = `Here we go! ${_players[
+                        turn
+                    ].getName()} (Player ${turn + 1}), it's your turn first.`;
+                }
+            } else if (turn === 1 && _AI) {
+                _currentInfo.textContent = "It's the computer's move next.";
             } else {
                 const rand = Math.floor(Math.random() * 3);
                 switch (rand) {
