@@ -39,7 +39,7 @@ const gameControl = (() => {
         _movesPlayed = 0;
         _gameWin = false;
         _gameDraw = false;
-        _displayControl.setGameOver(false);
+        _checkRestrictedInput();
         if (_firstGameStarted) {
             _displayControl.updateInformationString();
         }
@@ -74,11 +74,12 @@ const gameControl = (() => {
     const toggleAI = () => {
         _AI = !_AI;
         _checkGamePlayable();
+        _checkRestrictedInput();
         _displayControl.toggleAIButton();
     };
 
     const place = (x, y) => {
-        if (!_gameWin && !_gameDraw) {
+        if (!_checkRestrictedInput()) {
             const char = _players[turn].getChar();
             if (_gameBoard.place(x, y, char)) {
                 const cell = document.querySelector(
@@ -101,6 +102,7 @@ const gameControl = (() => {
                 _checkWin(x, y, char);
                 turn = (turn + 1) % _players.length;
                 _displayControl.updateInformationString();
+                _checkRestrictedInput();
             }
         }
     };
@@ -114,7 +116,6 @@ const gameControl = (() => {
             }
             if (col === boardState[y].length - 1) {
                 _gameWin = true;
-                _displayControl.setGameOver(true);
                 return;
             }
         }
@@ -124,7 +125,6 @@ const gameControl = (() => {
             }
             if (row === boardState.length - 1) {
                 _gameWin = true;
-                _displayControl.setGameOver(true);
                 return;
             }
         }
@@ -135,7 +135,6 @@ const gameControl = (() => {
                 }
                 if (i === boardState.length - 1) {
                     _gameWin = true;
-                    _displayControl.setGameOver(true);
                     return;
                 }
             }
@@ -147,15 +146,22 @@ const gameControl = (() => {
                 }
                 if (i === boardState.length - 1) {
                     _gameWin = true;
-                    _displayControl.setGameOver(true);
                     return;
                 }
             }
         }
         if (_movesPlayed === boardSize ** 2) {
             _gameDraw = true;
-            _displayControl.setGameOver(true);
         }
+    };
+
+    _checkRestrictedInput = () => {
+        if (_gameWin || _gameDraw || (turn === 1 && _AI)) {
+            _displayControl.setRestrictInput(true);
+            return true;
+        }
+        _displayControl.setRestrictInput(false);
+        return false;
     };
 
     const _gameBoard = (() => {
@@ -341,11 +347,11 @@ const gameControl = (() => {
             }
         };
 
-        const setGameOver = (bool) => {
+        const setRestrictInput = (bool) => {
             if (bool) {
-                _gameArea.classList.add("game-over");
+                _gameArea.classList.add("restrict-input");
             } else {
-                _gameArea.classList.remove("game-over");
+                _gameArea.classList.remove("restrict-input");
             }
         };
 
@@ -396,7 +402,7 @@ const gameControl = (() => {
             updatePlayerNames,
             toggleAIButton,
             setGamePlaying,
-            setGameOver,
+            setRestrictInput,
             resetGameCells,
         };
     })();
