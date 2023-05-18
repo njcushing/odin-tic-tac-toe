@@ -324,10 +324,12 @@ const gameControl = (() => {
                 _gameArea.classList.add("AI");
                 _AIButton.classList.add("AI");
                 _playerTwoName.setAttribute("disabled", true);
+                _playerTwoName.value = null;
             } else {
                 _gameArea.classList.remove("AI");
                 _AIButton.classList.remove("AI");
                 _playerTwoName.removeAttribute("disabled");
+                _playerTwoName.value = _players[1].getName();
             }
         };
 
