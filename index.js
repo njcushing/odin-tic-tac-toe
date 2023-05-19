@@ -1,6 +1,6 @@
 const gameControl = (() => {
     const _players = [];
-    let _AI = false;
+    let _AI = 0;
     let _AIMoving = false;
     let _AIMovingTimeoutID;
     let _AIMovingPlaceOverride = false;
@@ -29,10 +29,11 @@ const gameControl = (() => {
             _displayControl.updateInformationString();
             _firstGameStarted = true;
             _displayControl.setGamePlaying(true);
-        } else {
-            _displayControl.updateInformationString();
-            _displayControl.setGamePlaying(false);
+            return true;
         }
+        _displayControl.updateInformationString();
+        _displayControl.setGamePlaying(false);
+        return false;
     };
 
     const reset = () => {
@@ -44,7 +45,9 @@ const gameControl = (() => {
         _gameDraw = false;
         clearTimeout(_AIMovingTimeoutID);
         _checkRestrictedInput();
-        _checkAIMove();
+        if (_checkGamePlayable()) {
+            _checkAIMove();
+        }
         if (_firstGameStarted) {
             _displayControl.updateInformationString();
         }
@@ -77,13 +80,9 @@ const gameControl = (() => {
     };
 
     const toggleAI = () => {
-        if (!_AIMoving) {
-            _AI = !_AI;
-            _checkGamePlayable();
-            _checkRestrictedInput();
-            _displayControl.toggleAIButton();
-            _checkAIMove();
-        }
+        _AI = (_AI + 1) % 3;
+        _displayControl.toggleAIButton();
+        reset();
     };
 
     const _checkAIMove = () => {
@@ -95,19 +94,25 @@ const gameControl = (() => {
 
     const _AIMove = () => {
         /* Random Mode - Store empty cells in array. Select one at random. */
-        const _boardSize = _gameBoard.getBoardSize();
-        const _currentBoard = _gameBoard.getBoard();
-        const _cells = [];
-        for (let i = 0; i < _boardSize ** 2; i++) {
-            const _cellX = i % _boardSize;
-            const _cellY = Math.floor(i / _boardSize);
-            if (_currentBoard[_cellY][_cellX] === null) {
-                _cells.push([_cellX, _cellY]);
+        if (_AI === 1) {
+            const _boardSize = _gameBoard.getBoardSize();
+            const _currentBoard = _gameBoard.getBoard();
+            const _cells = [];
+            for (let i = 0; i < _boardSize ** 2; i++) {
+                const _cellX = i % _boardSize;
+                const _cellY = Math.floor(i / _boardSize);
+                if (_currentBoard[_cellY][_cellX] === null) {
+                    _cells.push([_cellX, _cellY]);
+                }
             }
+            const _randomCell = Math.floor(Math.random() * _cells.length);
+            _AIMovingPlaceOverride = true;
+            place(_cells[_randomCell][0], _cells[_randomCell][1]);
         }
-        const _randomCell = Math.floor(Math.random() * _cells.length);
-        _AIMovingPlaceOverride = true;
-        place(_cells[_randomCell][0], _cells[_randomCell][1]);
+
+        /* Unbeatable Mode -  */
+        if (_AI === 2) {
+        }
 
         _AIMoving = false;
     };
@@ -362,16 +367,27 @@ const gameControl = (() => {
         };
 
         const toggleAIButton = () => {
-            if (_AI) {
-                _gameArea.classList.add("AI");
-                _AIButton.classList.add("AI");
-                _playerTwoName.setAttribute("disabled", true);
-                _playerTwoName.value = null;
-            } else {
-                _gameArea.classList.remove("AI");
-                _AIButton.classList.remove("AI");
+            if (_AI === 0) {
+                _gameArea.classList.remove("AI-random");
+                _gameArea.classList.remove("AI-perfect");
+                _AIButton.classList.remove("AI-random");
+                _AIButton.classList.remove("AI-perfect");
                 _playerTwoName.removeAttribute("disabled");
                 _playerTwoName.value = _players[1].getName();
+                return;
+            }
+            if (_AI === 1) {
+                _gameArea.classList.add("AI-random");
+                _AIButton.classList.add("AI-random");
+                _playerTwoName.setAttribute("disabled", true);
+                _playerTwoName.value = null;
+                return;
+            }
+            if (_AI === 2) {
+                _gameArea.classList.add("AI-perfect");
+                _AIButton.classList.add("AI-perfect");
+                _playerTwoName.setAttribute("disabled", true);
+                _playerTwoName.value = null;
             }
         };
 

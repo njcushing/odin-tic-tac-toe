@@ -84,14 +84,23 @@ h1, h2, h3, h4, h5, h6 {
 .ai-button:active {
     background-color: #8d8d8d;
 }
-.ai-button.AI {
+.ai-button.AI-random {
     background-color: #1e81c4;
 }
-.ai-button.AI:hover {
+.ai-button.AI-random:hover {
     background-color: #41a1e0;
 }
-.ai-button.AI:active {
+.ai-button.AI-random:active {
     background-color: #0f649c;
+}
+.ai-button.AI-perfect {
+    background-color: #c79e18;
+}
+.ai-button.AI-perfect:hover {
+    background-color: #daaf22;
+}
+.ai-button.AI-perfect:active {
+    background-color: #af890d;
 }
 
 .player-name {
@@ -126,11 +135,13 @@ h1, h2, h3, h4, h5, h6 {
     border-color: red;
 }
 
-.ai-button.AI + .player-name {
+.ai-button.AI-random + .player-name,
+.ai-button.AI-perfect + .player-name {
     outline: 1px solid rgb(56, 56, 56);
     background-color: #d1d1d1;
 }
-.ai-button.AI + .player-name::placeholder {
+.ai-button.AI-random + .player-name::placeholder,
+.ai-button.AI-perfect + .player-name::placeholder {
     color: transparent;
 }
 
