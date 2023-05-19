@@ -1,8 +1,7 @@
 const gameControl = (() => {
     const _players = [];
     let _AI = 0;
-    let _AIMoving = false;
-    let _AIMovingTimeoutID;
+    const _AIMovingTimeoutIDs = [];
     let _AIMovingPlaceOverride = false;
     let turn = 0;
     let _movesPlayed = 0;
@@ -16,7 +15,9 @@ const gameControl = (() => {
             if (_players[player - 1].getName() === "") {
                 _players[player - 1].setName(null);
             }
-            _checkGamePlayable();
+            if (_checkGamePlayable()) {
+                _checkAIMove();
+            }
             _displayControl.updatePlayerNames();
         }
     };
@@ -33,6 +34,7 @@ const gameControl = (() => {
         }
         _displayControl.updateInformationString();
         _displayControl.setGamePlaying(false);
+        _clearAIMoves();
         return false;
     };
 
@@ -43,7 +45,7 @@ const gameControl = (() => {
         _movesPlayed = 0;
         _gameWin = false;
         _gameDraw = false;
-        clearTimeout(_AIMovingTimeoutID);
+        _clearAIMoves();
         _checkRestrictedInput();
         if (_checkGamePlayable()) {
             _checkAIMove();
@@ -87,8 +89,7 @@ const gameControl = (() => {
 
     const _checkAIMove = () => {
         if (!_gameWin && !_gameDraw && turn === 1 && _AI) {
-            _AIMovingTimeoutID = setTimeout(_AIMove, 3000);
-            _AIMoving = true;
+            _AIMovingTimeoutIDs.push(setTimeout(_AIMove, 3000));
         }
     };
 
@@ -113,8 +114,12 @@ const gameControl = (() => {
         /* Unbeatable Mode -  */
         if (_AI === 2) {
         }
+    };
 
-        _AIMoving = false;
+    const _clearAIMoves = () => {
+        _AIMovingTimeoutIDs.forEach((id) => {
+            clearTimeout(id);
+        });
     };
 
     const place = (x, y) => {
