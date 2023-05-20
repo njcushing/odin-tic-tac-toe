@@ -1,5 +1,6 @@
 const gameControl = (() => {
     const _players = [];
+    let _boardSizeStored = 3;
     let _AI = 0;
     const _AIMovingTimeoutIDs = [];
     let _AIMovingPlaceOverride = false;
@@ -39,6 +40,11 @@ const gameControl = (() => {
     };
 
     const reset = () => {
+        if (_AI === 2) {
+            _gameBoard.setBoardSize(3);
+        } else {
+            _gameBoard.setBoardSize(_boardSizeStored);
+        }
         _displayControl.resetGameCells();
         _gameBoard.reset();
         _randomPlayer();
@@ -77,7 +83,8 @@ const gameControl = (() => {
             }
             break;
         }
-        _gameBoard.setBoardSize(newBoardSize);
+        if (_AI !== 2) _gameBoard.setBoardSize(newBoardSize);
+        _boardSizeStored = newBoardSize;
         reset();
     };
 
@@ -94,25 +101,70 @@ const gameControl = (() => {
     };
 
     const _AIMove = () => {
-        /* Random Mode - Store empty cells in array. Select one at random. */
-        if (_AI === 1) {
-            const _boardSize = _gameBoard.getBoardSize();
-            const _currentBoard = _gameBoard.getBoard();
-            const _cells = [];
-            for (let i = 0; i < _boardSize ** 2; i++) {
-                const _cellX = i % _boardSize;
-                const _cellY = Math.floor(i / _boardSize);
-                if (_currentBoard[_cellY][_cellX] === null) {
-                    _cells.push([_cellX, _cellY]);
-                }
+        /* Unbeatable Mode using minimax solution */
+        if (_AI === 2) {
+            const values = [];
+            const maximumDepth = 3;
+            _AIMinimax(values, maximumDepth, 0, true, _gameBoard);
+            if (values.length === 0) {
+                /* Continue to random mode if no values found */
+            } else {
+                values.sort((a, b) => b[2] - a[2]);
+                _AIMovingPlaceOverride = true;
+                place(values[0][0], values[0][1]);
+                return;
             }
-            const _randomCell = Math.floor(Math.random() * _cells.length);
-            _AIMovingPlaceOverride = true;
-            place(_cells[_randomCell][0], _cells[_randomCell][1]);
         }
 
-        /* Unbeatable Mode -  */
-        if (_AI === 2) {
+        /* Random Mode - Store empty cells in array. Select one at random. */
+        const _boardSize = _gameBoard.getBoardSize();
+        const _currentBoard = _gameBoard.getBoard();
+        const _cells = [];
+        for (let i = 0; i < _boardSize ** 2; i++) {
+            const _cellX = i % _boardSize;
+            const _cellY = Math.floor(i / _boardSize);
+            if (_currentBoard[_cellY][_cellX] === null) {
+                _cells.push([_cellX, _cellY]);
+            }
+        }
+        const _randomCell = Math.floor(Math.random() * _cells.length);
+        _AIMovingPlaceOverride = true;
+        place(_cells[_randomCell][0], _cells[_randomCell][1]);
+    };
+
+    const _AIMinimax = (values, maximumDepth, depth, minmax, currBoard) => {
+        if (depth >= maximumDepth) return;
+        const boardCopy = Board();
+        boardCopy.setBoardState(
+            JSON.parse(JSON.stringify(currBoard.getBoard()))
+        );
+        const boardSize = boardCopy.getBoardSize();
+        for (let i = 0; i < boardSize ** 2; i++) {
+            const x = i % boardSize;
+            const y = Math.floor(i / boardSize);
+            if (boardCopy.getBoard()[y][x] === null) {
+                boardCopy.place(x, y, "x");
+                if (boardCopy.checkWin(x, y, "x")) {
+                    boardCopy.remove(x, y);
+                    values.push([x, y, 100 - depth]);
+                    continue;
+                }
+                boardCopy.remove(x, y);
+                boardCopy.place(x, y, "o");
+                if (boardCopy.checkWin(x, y, "o")) {
+                    boardCopy.remove(x, y);
+                    values.push([x, y, 100 - depth]);
+                    continue;
+                }
+                boardCopy.remove(x, y);
+                if (boardCopy.checkDraw(_movesPlayed + depth)) {
+                    values.push([x, y, 0]);
+                    continue;
+                }
+                boardCopy.place(x, y, (depth + 1) % 2 === 0 ? "x" : "o");
+                _AIMinimax(values, maximumDepth, depth + 1, !minmax, boardCopy);
+                boardCopy.remove(x, y);
+            }
         }
     };
 
@@ -127,77 +179,15 @@ const gameControl = (() => {
             _AIMovingPlaceOverride = false;
             const char = _players[turn].getChar();
             if (_gameBoard.place(x, y, char)) {
-                const cell = document.querySelector(
-                    `.game-cell[x="${x}"][y="${y}"]`
-                );
-                const img = cell.childNodes[0];
-                cell.classList.add(char);
-                switch (char) {
-                    case "o":
-                        img.setAttribute("src", "./img/nought.png");
-                        break;
-                    case "x":
-                        img.setAttribute("src", "./img/cross.png");
-                        break;
-                    default:
-                        break;
-                }
-                cell.childNodes[0].classList.add("no-select");
+                _displayControl.updateCell(x, y, char);
                 _movesPlayed++;
-                _checkWin(x, y, char);
+                _gameWin = _gameBoard.checkWin(x, y, char);
+                _gameDraw = _gameBoard.checkDraw(_movesPlayed);
                 turn = (turn + 1) % _players.length;
                 _displayControl.updateInformationString();
                 _checkRestrictedInput();
                 _checkAIMove();
             }
-        }
-    };
-
-    const _checkWin = (x, y, char) => {
-        const boardState = _gameBoard.getBoard();
-        const boardSize = _gameBoard.getBoardSize();
-        for (let col = 0; col < boardState[y].length; col++) {
-            if (boardState[y][col] !== char) {
-                break;
-            }
-            if (col === boardState[y].length - 1) {
-                _gameWin = true;
-                return;
-            }
-        }
-        for (let row = 0; row < boardState.length; row++) {
-            if (boardState[row][x] !== char) {
-                break;
-            }
-            if (row === boardState.length - 1) {
-                _gameWin = true;
-                return;
-            }
-        }
-        if (x === y) {
-            for (let i = 0; i < boardState.length; i++) {
-                if (boardState[i][i] !== char) {
-                    break;
-                }
-                if (i === boardState.length - 1) {
-                    _gameWin = true;
-                    return;
-                }
-            }
-        }
-        if (x + y === boardState.length - 1) {
-            for (let i = 0; i < boardState.length; i++) {
-                if (boardState[i][boardState.length - 1 - i] !== char) {
-                    break;
-                }
-                if (i === boardState.length - 1) {
-                    _gameWin = true;
-                    return;
-                }
-            }
-        }
-        if (_movesPlayed === boardSize ** 2) {
-            _gameDraw = true;
         }
     };
 
@@ -210,29 +200,25 @@ const gameControl = (() => {
         return false;
     };
 
-    const _gameBoard = (() => {
-        let _boardSize = 3;
-        let _board = [];
+    const Board = () => {
+        let boardSize = 3;
+        let board = [];
 
         const reset = () => {
-            _board = [];
-            for (let i = 0; i < _boardSize; i++) {
-                _board.push([]);
-                for (let j = 0; j < _boardSize; j++) {
-                    _board[_board.length - 1].push(null);
+            board = [];
+            for (let i = 0; i < boardSize; i++) {
+                board.push([]);
+                for (let j = 0; j < boardSize; j++) {
+                    board[board.length - 1].push(null);
                 }
             }
         };
+        reset();
 
         const place = (x, y, char) => {
-            if (
-                y >= 0 &&
-                y <= _board.length &&
-                x >= 0 &&
-                x <= _board[0].length
-            ) {
-                if (_board[y][x] === null) {
-                    _board[y][x] = char;
+            if (y >= 0 && y <= board.length && x >= 0 && x <= board[0].length) {
+                if (board[y][x] === null) {
+                    board[y][x] = char;
                     return true;
                 }
                 return false;
@@ -240,22 +226,81 @@ const gameControl = (() => {
             return false;
         };
 
-        const setBoardSize = (size) => {
-            _boardSize = size;
+        const remove = (x, y) => {
+            if (y >= 0 && y <= board.length && x >= 0 && x <= board[0].length) {
+                if (board[y][x] !== null) {
+                    board[y][x] = null;
+                }
+            }
         };
 
-        const getBoardSize = () => _boardSize;
+        const setBoardState = (boardState) => {
+            board = boardState;
+        };
 
-        const getBoard = () => _board;
+        const checkWin = (x, y, char) => {
+            for (let col = 0; col < board[y].length; col++) {
+                if (board[y][col] !== char) {
+                    break;
+                }
+                if (col === board[y].length - 1) {
+                    return true;
+                }
+            }
+            for (let row = 0; row < board.length; row++) {
+                if (board[row][x] !== char) {
+                    break;
+                }
+                if (row === board.length - 1) {
+                    return true;
+                }
+            }
+            if (x === y) {
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i][i] !== char) {
+                        break;
+                    }
+                    if (i === board.length - 1) {
+                        return true;
+                    }
+                }
+            }
+            if (x + y === board.length - 1) {
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i][board.length - 1 - i] !== char) {
+                        break;
+                    }
+                    if (i === board.length - 1) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        const checkDraw = (movesPlayed) => movesPlayed === boardSize ** 2;
+
+        const setBoardSize = (size) => {
+            boardSize = size;
+        };
+
+        const getBoardSize = () => boardSize;
+
+        const getBoard = () => board;
 
         return {
             reset,
             place,
+            remove,
+            setBoardState,
+            checkWin,
+            checkDraw,
             setBoardSize,
             getBoardSize,
             getBoard,
         };
-    })();
+    };
+    const _gameBoard = Board();
 
     const Player = (name, char) => {
         let _name = name;
@@ -301,6 +346,11 @@ const gameControl = (() => {
         _playerTwoName.addEventListener("input", () =>
             changePlayerName(2, event.target.value)
         );
+
+        const updatePlayerNames = () => {
+            _playerOneName.value = _players[0].getName();
+            _playerTwoName.value = _players[1].getName();
+        };
 
         const updateInformationString = () => {
             if (
@@ -366,9 +416,22 @@ const gameControl = (() => {
             }
         };
 
-        const updatePlayerNames = () => {
-            _playerOneName.value = _players[0].getName();
-            _playerTwoName.value = _players[1].getName();
+        const updateCell = (x, y, char) => {
+            const cell = document.querySelector(
+                `.game-cell[x="${x}"][y="${y}"]`
+            );
+            const img = cell.childNodes[0];
+            cell.classList.add(char);
+            switch (char) {
+                case "o":
+                    img.setAttribute("src", "./img/nought.png");
+                    break;
+                case "x":
+                    img.setAttribute("src", "./img/cross.png");
+                    break;
+                default:
+            }
+            cell.childNodes[0].classList.add("no-select");
         };
 
         const toggleAIButton = () => {
@@ -455,8 +518,9 @@ const gameControl = (() => {
         };
 
         return {
-            updateInformationString,
             updatePlayerNames,
+            updateInformationString,
+            updateCell,
             toggleAIButton,
             setGamePlaying,
             setRestrictInput,
